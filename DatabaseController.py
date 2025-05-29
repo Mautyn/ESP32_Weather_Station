@@ -4,13 +4,12 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Połączenie z bazą – dostosuj dane logowania
 def get_connection():
     return psycopg2.connect(
         dbname="Weather_Data",
         user="postgres",
-        password="xKontakt0",
-        host="localhost",   # lub IP serwera PostgreSQL
+        password="your_password",
+        host="localhost",   
         port=5432
     )
 
@@ -32,7 +31,6 @@ def weather():
     cursor.execute("SELECT date, time, value FROM pressure ORDER BY date DESC, time DESC LIMIT 1")
     pres_row = cursor.fetchone()
 
-    # Dodatkowo: dane do wykresów (30 ostatnich rekordów)
     cursor.execute("SELECT date, time, value FROM temperature ORDER BY date DESC, time DESC LIMIT 30")
     temp_data = cursor.fetchall()
 
@@ -65,7 +63,6 @@ def weather():
 
 
 
-# Endpoint API do odbierania danych (jak masz obecnie)
 @app.route('/api/weather', methods=['POST'])
 def receive_weather():
     data = request.get_json()

@@ -3,21 +3,20 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <ArduinoJson.h>
-#include "time.h"  // biblioteka do obsługi czasu
+#include "time.h" 
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-const char* ssid = "PK.Internet";
-const char* password = "";
+const char* ssid = "<your_ssid>";
+const char* password = "<your_password>";
 
-const char* serverName = "http://127.0.0.1:5000//api/weather";
+const char* serverName = "<server_ip>";
 
 Adafruit_BME280 bme;
 
-// Strefa czasowa, np. Polska (CET/CEST)
 const char* ntpServer = "ntp1.tp.pl	";
-const long gmtOffset_sec = 3600;  // +1 godzina dla CET
-const int daylightOffset_sec = 3600; // +1 godzina na czas letni
+const long gmtOffset_sec = 3600;  
+const int daylightOffset_sec = 3600; 
 
 void setup() {
   Serial.begin(115200);
@@ -34,7 +33,6 @@ void setup() {
   }
   Serial.println("\nPołączono z WiFi!");
 
-  // Synchronizacja czasu z NTP
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
@@ -42,20 +40,18 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
 
-    // Pobierz aktualny czas
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
       Serial.println("Błąd pobierania czasu");
       return;
     }
 
-    char dateStr[11]; // YYYY-MM-DD + null
-    char timeStr[9];  // HH:MM:SS + null
+    char dateStr[11]; 
+    char timeStr[9];  
 
     strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &timeinfo);
     strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
 
-    // Tworzymy JSON z pomiarami i czasem
     StaticJsonDocument<256> jsonDoc;
     jsonDoc["temperature"] = bme.readTemperature();
     jsonDoc["pressure"] = bme.readPressure() / 100.0F;
@@ -83,5 +79,5 @@ void loop() {
     Serial.println("Brak połączenia z WiFi");
   }
 
-  delay(60000);  // Wysyłaj co 60 sekund
+  delay(60000);  
 }
