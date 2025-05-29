@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta http-equiv="refresh" content="30">
+    <meta charset="UTF-8" />
+    <title>Pomiar pogody</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #222;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 20px 0 40px 0;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        td {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 60px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ostatnie pomiary pogodowe</h1>
+
+<table>
+    <tr>
+        <th>Temperatura (°C)</th>
+        <th>Wilgotność (%)</th>
+        <th>Ciśnienie (hPa)</th>
+    </tr>
+    <tr>
+        <td>{{ temp_row[2] }}</td>
+        <td>{{ hum_row[2] }}</td>
+        <td>{{ pres_row[2] }}</td>
+    </tr>
+</table>
+
+<h2>Wykresy pomiarów</h2>
+
+<div class="chart-container">
+    <canvas id="tempChart"></canvas>
+</div>
+<div class="chart-container">
+    <canvas id="humChart"></canvas>
+</div>
+<div class="chart-container">
+    <canvas id="presChart"></canvas>
+</div>
+
+<script>
+    const labels = {{ labels | tojson }};
+    const tempValues = {{ temp_values | tojson }};
+    const humValues = {{ hum_values | tojson }};
+    const presValues = {{ pres_values | tojson }};
+
+    function createChart(ctx, label, data, color, yLabel) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: color + '44',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Data i czas' },
+                        ticks: { maxRotation: 90, minRotation: 45, maxTicksLimit: 10 }
+                    },
+                    y: {
+                        title: { display: true, text: yLabel }
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
+                }
+            }
+        });
+    }
+
+    createChart(document.getElementById('tempChart').getContext('2d'), 'Temperatura (°C)', tempValues, 'rgb(255,99,132)', '°C');
+    createChart(document.getElementById('humChart').getContext('2d'), 'Wilgotność (%)', humValues, 'rgb(54,162,235)', '%');
+    createChart(document.getElementById('presChart').getContext('2d'), 'Ciśnienie (hPa)', presValues, 'rgb(75,192,192)', 'hPa');
+</script>
+
+</body>
+</html>
